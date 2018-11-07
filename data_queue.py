@@ -3,12 +3,13 @@ import time
 import zip_file
 import shutil
 from logs import make_log
+from zip_file import get_database
+from zip_file import get_date
+from dataclean.clean import clean_folder
 
 # # 开启额外的线程用于监控是否有需要入库的文件，防止当服务器中断时还有文件未入库；
 # # 使用记录文件来记录需要入库的文件；
-# todo 生产时替换；
-# mask_file = "/HDATA`/1/mask/mask"
-mask_file = '/home/zxy/PycharmProjects/mask/mask'
+mask_file = 'mask/mask'
 
 if not os.path.exists(os.path.dirname(mask_file)):
     os.makedirs(os.path.dirname(mask_file))
@@ -19,7 +20,7 @@ if not os.path.exists(mask_file):
 # 监控数据并调用清洗接口；
 def monitor_data():
     while True:
-        time.sleep(30)
+        time.sleep(3)
 
         if not os.path.exists(mask_file):
             make_log("ERROR", "mask文件不存在")
@@ -40,19 +41,28 @@ def monitor_data():
                 print("数据清洗：", first_mask)
                 make_log("INFO", "数据清洗：" + first_mask)
 
-                # 解析数据库名字;
+                # todo 解析数据库名字和日期;利用这些信息清洗和入库；
                 basename = os.path.basename(first_mask)
-                database_name = ''.join([z for z in basename if z.isalpha()])
+
+                database_name = get_database(basename)
+                date = get_date(basename)
 
                 # 解压缩数据，并返回压缩后的文件夹；
                 unzip_dir = zip_file.unzip_file(first_mask)
 
                 # todo 清洗，入库;
-                time.sleep(100)
+                # clean_folder(unzip_dir, date)
+                time.sleep(15)
 
                 # make_log("INFO", "clean finished：" + first_mask)
                 # 清除第一条数据；
+                with open(mask_file, 'r') as read_mask:
+
+                    # 重新读取文件并删除第一行；因为在别的线程可能会修改文件；
+                    mask_str = read_mask.readlines()
+
                 with open(mask_file, 'w') as write_mask:
+
                     write_mask.write(''.join(mask_str[1:]))
 
                 # 删除所有的文件，包括压缩文件，解压文件以及清洗后的文件；
@@ -65,7 +75,7 @@ def monitor_data():
             except FileNotFoundError:
                 print("file not found")
 
-                make_log("ERROR", "file not found" + first_mask)
+                make_log("ERROR", "文件不存在" + first_mask)
                 with open(mask_file, 'w') as write_mask:
                     write_mask.write(''.join(mask_str[1:]))
         else:

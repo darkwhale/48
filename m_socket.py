@@ -4,11 +4,11 @@ import socket
 import struct
 import threading
 from disk import get_min_disk
-import time
 from data_queue import mask_file
 import os
 import shutil
 from logs import make_log
+from zip_file import get_database
 
 # 接收文件接口；
 port = 12345
@@ -36,7 +36,8 @@ def receive_thread(connection):
             # 在receive下用时间戳创建新的文件夹，防止命名冲突；
             # file_new_dir = os.path.join('/HDATA', str(disk_list),
             #                             'receive', str(int(time.time())))
-            file_new_dir = os.path.join('receive', str(time.time()))
+            file_new_dir = os.path.join('receive', get_database(file_name),
+                                        file_name[:-4])
             if not os.path.exists(file_new_dir):
                 os.makedirs(file_new_dir)
 
@@ -89,7 +90,9 @@ def receive_thread(connection):
             # 好处：
             # 1.不需要对入库过程上锁，以免造成同时写入库文件的错误；
             # 2.当系统重启时可以继续执行文件清洗和入库过程；
+            # print('##'+os.path.abspath(file_new_name))
             with open(mask_file, 'a') as record_mask:
+                print("#######################")
                 record_mask.write(os.path.abspath(file_new_name) + '\n')
 
         connection.close()

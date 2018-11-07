@@ -4,9 +4,7 @@
 import time
 import os
 
-# todo 生产时替换；
-# log_dir = "/HDATA/1/logs"
-log_dir = "/home/zxy/PycharmProjects/mask/"
+log_dir = "logs"
 
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
