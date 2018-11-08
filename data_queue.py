@@ -5,6 +5,7 @@ import shutil
 from logs import make_log
 from zip_file import get_database
 from zip_file import get_date
+import write_protect
 from dataclean.clean import process_dir
 from hive import hive
 
@@ -58,6 +59,9 @@ def monitor_data():
 
                 # make_log("INFO", "clean finished：" + first_mask)
                 # 清除第一条数据；
+
+                # 注意这里的写保护；
+                write_protect.write_protect.acquire()
                 with open(mask_file, 'r') as read_mask:
 
                     # 重新读取文件并删除第一行；因为在别的线程可能会修改文件；
@@ -66,6 +70,7 @@ def monitor_data():
                 with open(mask_file, 'w') as write_mask:
 
                     write_mask.write(''.join(mask_str[1:]))
+                write_protect.write_protect.release()
 
                 # 删除所有的文件，包括压缩文件，解压文件以及清洗后的文件；
                 shutil.rmtree(os.path.dirname(first_mask))

@@ -4,25 +4,24 @@ import socket
 import struct
 import threading
 from disk import get_min_disk
-from data_queue import mask_file
 import os
 import shutil
 from logs import make_log
 from zip_file import get_database
+import write_protect
 
-# 创建文件锁；
-import fcntl
+
+from data_queue import mask_file
 
 # 接收文件接口；
 port = 12345
 
-global write_protect
-
-write_protect = 0
-
 
 # 多线程，传输完毕可直接进行清洗；
 def receive_thread(connection):
+
+    # 使用全局变量；
+    global write_protect
 
     try:
         connection.settimeout(600)
@@ -99,13 +98,14 @@ def receive_thread(connection):
             # 1.不需要对入库过程上锁，以免造成同时写入库文件的错误；
             # 2.当系统重启时可以继续执行文件清洗和入库过程；
             # print('##'+os.path.abspath(file_new_name))
+
+            # 注意这里的写保护；
+
+            write_protect.write_protect.acquire()
             with open(mask_file, 'a') as record_mask:
                 # print("#######################")
-
-                # 创建文件锁, 避免同时写入；
-                fcntl.flock(record_mask, fcntl.LOCK_EX)
                 record_mask.write(os.path.abspath(file_new_name) + '\n')
-                fcntl.flock(record_mask, fcntl.LOCK_UN)
+            write_protect.write_protect.release()
 
         connection.close()
 

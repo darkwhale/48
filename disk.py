@@ -2,7 +2,7 @@ import psutil
 import subprocess
 
 cpu_thresold = 70
-memory_thresold = 80
+memory_thresold = 90
 
 
 # 获取目标文件夹硬盘大小；
