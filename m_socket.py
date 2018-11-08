@@ -35,9 +35,10 @@ def receive_thread(connection):
             # todo 生产时替换；
             # 在receive下用时间戳创建新的文件夹，防止命名冲突；
             # file_new_dir = os.path.join('/HDATA', str(disk_list),
-            #                             'receive', str(int(time.time())))
+            #                             'receive', get_database(file_name), file_name[:-4])
             file_new_dir = os.path.join('receive', get_database(file_name),
                                         file_name[:-4])
+            # print(file_name, file_new_dir)
             if not os.path.exists(file_new_dir):
                 os.makedirs(file_new_dir)
 
@@ -82,7 +83,7 @@ def receive_thread(connection):
 
             w_file.close()
 
-            print("\n接收完成！\n")
+            print("接收完成！\n")
             make_log("INFO", "传输完成： %s" % file_new_dir)
 
             # 写到记录文件里；
@@ -92,7 +93,7 @@ def receive_thread(connection):
             # 2.当系统重启时可以继续执行文件清洗和入库过程；
             # print('##'+os.path.abspath(file_new_name))
             with open(mask_file, 'a') as record_mask:
-                print("#######################")
+                # print("#######################")
                 record_mask.write(os.path.abspath(file_new_name) + '\n')
 
         connection.close()

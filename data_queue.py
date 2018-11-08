@@ -5,7 +5,8 @@ import shutil
 from logs import make_log
 from zip_file import get_database
 from zip_file import get_date
-from dataclean.clean import clean_folder
+from dataclean.clean import process_dir
+from hive import hive
 
 # # 开启额外的线程用于监控是否有需要入库的文件，防止当服务器中断时还有文件未入库；
 # # 使用记录文件来记录需要入库的文件；
@@ -50,8 +51,9 @@ def monitor_data():
                 # 解压缩数据，并返回压缩后的文件夹；
                 unzip_dir = zip_file.unzip_file(first_mask)
 
-                # todo 清洗，入库;
-                # clean_folder(unzip_dir, date)
+                # todo 清洗，入库;待调试；
+                # merge_dir = process_dir(unzip_dir, date)
+                # hive(merge_dir, database_name, date)
                 time.sleep(15)
 
                 # make_log("INFO", "clean finished：" + first_mask)

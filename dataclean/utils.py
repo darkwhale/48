@@ -133,4 +133,6 @@ def merge_files(folder, database_name, date, block_size=128):
             cur_merge_file_size = 0
             file_subscript += 1
 
+    return merge_dir
+
 

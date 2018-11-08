@@ -11,7 +11,9 @@ def process_dir(folder, database_name, date):
     new_data_dir = clean_folder(folder, date)
 
     # 合并小文件；
-    merge_files(new_data_dir, database_name, date)
+    merge_data_dir = merge_files(new_data_dir, database_name, date)
+
+    return merge_data_dir
 
 
 if __name__ == '__main__':
