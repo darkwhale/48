@@ -10,8 +10,15 @@ import shutil
 from logs import make_log
 from zip_file import get_database
 
+# 创建文件锁；
+import fcntl
+
 # 接收文件接口；
 port = 12345
+
+global write_protect
+
+write_protect = 0
 
 
 # 多线程，传输完毕可直接进行清洗；
@@ -94,7 +101,11 @@ def receive_thread(connection):
             # print('##'+os.path.abspath(file_new_name))
             with open(mask_file, 'a') as record_mask:
                 # print("#######################")
+
+                # 创建文件锁, 避免同时写入；
+                fcntl.flock(record_mask, fcntl.LOCK_EX)
                 record_mask.write(os.path.abspath(file_new_name) + '\n')
+                fcntl.flock(record_mask, fcntl.LOCK_UN)
 
         connection.close()
 
