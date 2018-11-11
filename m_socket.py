@@ -5,7 +5,6 @@ import struct
 import threading
 from disk import get_min_disk
 import os
-import shutil
 from logs import make_log
 from zip_file import get_database
 import write_protect
@@ -19,9 +18,6 @@ port = 12345
 
 # 多线程，传输完毕可直接进行清洗；
 def receive_thread(connection):
-
-    # 使用全局变量；
-    global write_protect
 
     try:
         connection.settimeout(600)
@@ -55,18 +51,22 @@ def receive_thread(connection):
             w_file = open(file_new_name, 'wb')
 
             print("start receiving file:", file_name)
+            make_log("INFO", "开始接收文件:" + file_name)
 
             out_contact_times = 0
 
             while not received_size == file_size:
+                r_data = connection.recv(10240)
+                received_size += len(r_data)
+                w_file.write(r_data)
                 # process_bar.process_bar(float(received_size) / file_size)
-                if file_size - received_size > 10240:
-                    r_data = connection.recv(10240)
-                    received_size += len(r_data)
-
-                else:
-                    r_data = connection.recv(file_size - received_size)
-                    received_size = file_size
+                # if file_size - received_size > 10240:
+                #     r_data = connection.recv(10240)
+                #     received_size += len(r_data)
+                #
+                # else:
+                #     r_data = connection.recv(file_size - received_size)
+                #     received_size = file_size
 
                 # 记录未接收到数据的次数；
                 if not r_data:
@@ -79,13 +79,13 @@ def receive_thread(connection):
                     connection.close()
                     w_file.close()
 
-                    # 删除掉未接收完毕的数据；
-                    print('连接断开，将清除未传输的文件')
-                    make_log("ERROR", "连接断开,清除未完成的文件")
-                    shutil.rmtree(file_new_dir)
-                    exit(1)
-
-                w_file.write(r_data)
+                #     # 删除掉未接收完毕的数据；
+                #     print('连接断开，将清除未传输的文件')
+                #     make_log("ERROR", "连接断开,清除未完成的文件")
+                #     shutil.rmtree(file_new_dir)
+                #     exit(1)
+                #
+                # w_file.write(r_data)
 
             w_file.close()
 
@@ -101,11 +101,11 @@ def receive_thread(connection):
 
             # 注意这里的写保护；
 
-            write_protect.write_protect.acquire()
+            write_protect.write_lock.acquire()
             with open(mask_file, 'a') as record_mask:
                 # print("#######################")
                 record_mask.write(os.path.abspath(file_new_name) + '\n')
-            write_protect.write_protect.release()
+            write_protect.write_lock.release()
 
         connection.close()
 

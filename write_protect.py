@@ -1,3 +1,3 @@
 import threading
 
-write_protect = threading.Lock()
+write_lock = threading.Lock()
