@@ -19,8 +19,8 @@ def get_disk_size():
     #     if disk[-1].isdigit():
     #         disk_dict[int(disk[-1])] = int(used_size)
     #
-    # return [disk_dict[1], disk_dict[2], disk_dict[3], disk_dict[4],
-    #         disk_dict[5], disk_dict[6], disk_dict[7], disk_dict[8], ]
+    # disk_list = sorted(disk_dict.items(),key = lambda d:d[0])
+    # return [element[1] for element in disk_list]
 
     return [121324852, 23, 345107584, 3255576, 4, 4, 4, 373965804]
 
@@ -46,7 +46,7 @@ def get_size_of_computer():
     for disk in disk_list:
         part_useable_size = (961544192 - disk) - (961544192 - disk) \
                             % (40 * 1024 * 1024)
-        use_able_size += part_useable_size
+        use_able_size = part_useable_size if use_able_size < part_useable_size else use_able_size
 
     return use_able_size
 

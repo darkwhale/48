@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import threading
-from data_queue import monitor_data
+from data_queue import monitor
 from answer import answer
 from m_socket import receive
 from logs import make_log
@@ -15,18 +15,22 @@ mask_thread 用于监控mask_file文件，并进行数据清洗和数据处理�
 
 if __name__ == '__main__':
     # 开启线程用于返回系统状态；
-    answer_thread = threading.Thread(target=answer, args=())
+    answer_thread = threading.Thread(target=answer, args=(), name='answer')
     answer_thread.start()
     make_log("INFO", "监听程序已开启-------------")
+    print("监听程序已开启-------------")
 
     # 开启线程用于接收文件;
-    receive_thread = threading.Thread(target=receive, args=())
+    receive_thread = threading.Thread(target=receive, args=(), name='receive')
     receive_thread.start()
     make_log("INFO", "文件接受程序已开启--------------")
+    print("文件接受程序已开启--------------")
 
     # 开启线程用于监控mask文件;
-    mask_thread = threading.Thread(target=monitor_data, args=())
+    mask_thread = threading.Thread(target=monitor, args=(5,), name='mask')
     mask_thread.start()
     make_log("INFO", "文件处理程序已开启--------------")
+    print("文件处理程序已开启--------------")
+
 
 

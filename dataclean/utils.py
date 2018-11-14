@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import os
+import shutil
 
 dest_path = "new_data"
 err_path = "err_data"
@@ -28,12 +29,14 @@ def get_file_list(file_dir):
 #     return file_list
 
 # 清洗单个文件；
-def clean_file(dest_dir, err_dir, cur_file, date):
+def clean_file(dest_dir, err_dir, cur_file):
     # 取绝对名字
     cur_file_name = os.path.basename(cur_file)
 
-    dest_file_path = os.path.join(dest_dir, cur_file_name)
-    err_file_path = os.path.join(err_dir, cur_file_name)
+    date = cur_file[:8]
+
+    dest_file_path = os.path.join(dest_dir, cur_file_name[8:])
+    err_file_path = os.path.join(err_dir, cur_file_name[8:])
 
     # todo 用w还是a？
     dest_file = open(dest_file_path, 'w', encoding='utf-8')
@@ -67,26 +70,28 @@ def clean_file(dest_dir, err_dir, cur_file, date):
 
 
 # 清洗文件目录；unzip_dir,返回清洗后的文件夹；
-def clean_folder(folder, date):
+def clean_folder(folder):
     # 创建文件夹；与unzip_dir在同一层目录；
 
     dest_dir = os.path.join(os.path.dirname(folder), dest_path)
     err_dir = os.path.join(os.path.dirname(folder), err_path)
 
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
+    os.makedirs(dest_dir)
 
-    if not os.path.exists(err_dir):
-        os.makedirs(err_dir)
+    if os.path.exists(err_dir):
+        shutil.rmtree(err_dir)
+    os.makedirs(err_dir)
 
-    print(folder)
+    # print(folder)
     file_list = get_file_list(folder)
-    print(len(file_list))
+    # print(len(file_list))
 
     for file in file_list:
         print(file)
         try:
-            clean_file(dest_dir, err_dir, file, date)
+            clean_file(dest_dir, err_dir, file)
             print("清洗文件：", file)
         except Exception as e:
             print(e)
@@ -101,8 +106,9 @@ def merge_files(folder, database_name, date, block_size=128):
     # 创建文件夹；与new_data在同一层目录；
 
     merge_dir = os.path.join(os.path.dirname(folder), merge_path)
-    if not os.path.exists(merge_dir):
-        os.makedirs(merge_dir)
+    if os.path.exists(merge_dir):
+        shutil.rmtree(merge_dir)
+    os.makedirs(merge_dir)
 
     base_file_name = database_name + '_' + date[4:] + '_'
 

@@ -78,6 +78,7 @@ def receive_thread(connection):
                 if out_contact_times == 1000:
                     connection.close()
                     w_file.close()
+                    raise socket.timeout
 
                 #     # 删除掉未接收完毕的数据；
                 #     print('连接断开，将清除未传输的文件')
@@ -111,6 +112,7 @@ def receive_thread(connection):
 
     except socket.timeout:
         print("连接超时！")
+    finally:
         connection.close()
 
 
@@ -121,7 +123,7 @@ def receive():
     sock.bind((host, port))
     sock.listen(5)
 
-    print("服务已启动---------------")
+    # print("服务已启动---------------")
 
     while True:
         connection, address = sock.accept()

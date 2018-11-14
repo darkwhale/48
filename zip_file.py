@@ -16,8 +16,9 @@ def unzip_file(zip_file_path):
 
     # 解压文件的目录；
     unzip_dir = os.path.join(base_dir, 'unzip')
-    if not os.path.exists(unzip_dir):
-        os.mkdir(unzip_dir)
+    if os.path.exists(unzip_dir):
+        shutil.rmtree(unzip_dir)
+    os.mkdir(unzip_dir)
     try:
         zipper = zipfile.ZipFile(zip_file_path, 'r')
         zipper.extractall(unzip_dir)
